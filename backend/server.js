@@ -10,7 +10,7 @@ app.use(express.json());
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root', 
-    password: process.env.DB_PASSWORD || 'TU_CONTRASEÑA_DIRECTA_AQUÍ', 
+    password: process.env.DB_PASSWORD || 'mysql', 
     database: 'sistema_academico'
 });
 
@@ -32,7 +32,7 @@ app.get('/usuarios', (req, res) => {
     });
 });
 
-// 2. Obtener todos los catedráticos (Este asegura tus puntos)
+// 2. Obtener todos los catedráticos 
 app.get('/catedraticos', (req, res) => {
     db.query('SELECT * FROM catedraticos', (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -40,7 +40,7 @@ app.get('/catedraticos', (req, res) => {
     });
 });
 
-// 3. Obtener todos los cursos (Opcional, pero suma puntos de "extra")
+// 3. Obtener todos los cursos 
 app.get('/cursos', (req, res) => {
     db.query('SELECT * FROM cursos', (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
