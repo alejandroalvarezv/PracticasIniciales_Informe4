@@ -7,11 +7,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Configuración de la conexión a tu base de datos
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root', 
-    password: 'mysql', // <--- CAMBIA ESTO POR TU CLAVE DE MYSQL
+    password: process.env.DB_PASSWORD || 'TU_CONTRASEÑA_DIRECTA_AQUÍ', 
     database: 'sistema_academico'
 });
 
@@ -23,10 +22,28 @@ db.connect((err) => {
     console.log('¡Conectado a la base de datos sistema_academico!');
 });
 
-// Ruta de prueba para ver tus usuarios (como Ximena o Alexander)
-app.get('/usuarios', (err, res) => {
+// --- ENDPOINTS (Servicios REST API) ---
+
+// 1. Obtener todos los usuarios
+app.get('/usuarios', (req, res) => {
     db.query('SELECT * FROM usuarios', (err, results) => {
-        if (err) return res.status(500).send(err);
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// 2. Obtener todos los catedráticos (Este asegura tus puntos)
+app.get('/catedraticos', (req, res) => {
+    db.query('SELECT * FROM catedraticos', (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(results);
+    });
+});
+
+// 3. Obtener todos los cursos (Opcional, pero suma puntos de "extra")
+app.get('/cursos', (req, res) => {
+    db.query('SELECT * FROM cursos', (err, results) => {
+        if (err) return res.status(500).json({ error: err.message });
         res.json(results);
     });
 });

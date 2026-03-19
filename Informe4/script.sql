@@ -74,6 +74,7 @@ INSERT INTO catedraticos (nombre) VALUES
   ('Carmen Hernandez'),
   ('Raul Ramirez');
 
+
 -- Usuarios   (contraseña real = "demo123", hasheada con bcrypt)
 INSERT INTO usuarios (registro, nombres, apellidos, correo, contrasena) VALUES
   ('202359410', 'Ximena',  'Garcia',   'ximena@usac.edu.gt',  'ximena123'),
