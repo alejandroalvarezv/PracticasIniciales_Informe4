@@ -1,54 +1,96 @@
 const express = require('express');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const app = express();
+const PORT = 3001; 
+const SECRET = 'clave_super_secreta_demo'; 
+
 app.use(cors());
 app.use(express.json());
 
-const db = mysql.createConnection({
+// --- CONEXIÓN A BASE DE DATOS ---
+const db = mysql.createPool({
     host: 'localhost',
     user: 'root', 
     password: process.env.DB_PASSWORD || 'mysql', 
-    database: 'sistema_academico'
+    database: 'sistema_academico', // Tu DB
+    waitForConnections: true,
+    connectionLimit: 10
 });
 
-db.connect((err) => {
-    if (err) {
-        console.error('Error conectando a MySQL:', err);
-        return;
+
+app.post('/api/auth/registro', async (req, res) => {
+    const { registro, nombres, apellidos, correo, contrasena } = req.body;
+    try {
+        const hash = await bcrypt.hash(contrasena, 10);
+        await db.execute(
+            'INSERT INTO usuarios (registro, nombres, apellidos, correo, contrasena) VALUES (?,?,?,?,?)',
+            [registro, nombres, apellidos, correo, hash]
+        );
+        res.status(201).json({ mensaje: 'Usuario creado con éxito' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Error al registrar: ' + err.message });
     }
-    console.log('¡Conectado a la base de datos sistema_academico!');
 });
 
-// --- ENDPOINTS (Servicios REST API) ---
+app.post('/api/auth/login', async (req, res) => {
+    const { registro, contrasena } = req.body;
+    try {
+        const [rows] = await db.execute('SELECT * FROM usuarios WHERE registro = ?', [registro]);
+        const usuario = rows[0];
 
-// 1. Obtener todos los usuarios
-app.get('/usuarios', (req, res) => {
-    db.query('SELECT * FROM usuarios', (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
-    });
+        if (!usuario || !(await bcrypt.compare(contrasena, usuario.contrasena))) {
+            return res.status(401).json({ error: 'Credenciales incorrectas' });
+        }
+
+        const token = jwt.sign(
+            { id: usuario.id, registro: usuario.registro, nombres: usuario.nombres },
+            SECRET,
+            { expiresIn: '8h' }
+        );
+
+        res.json({ 
+            token, 
+            usuario: { 
+                id: usuario.id, 
+                nombres: usuario.nombres, 
+                registro: usuario.registro 
+            } 
+        });
+    } catch (err) {
+        res.status(500).json({ error: 'Error en el servidor' });
+    }
 });
 
-// 2. Obtener todos los catedráticos 
-app.get('/catedraticos', (req, res) => {
-    db.query('SELECT * FROM catedraticos', (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
-    });
+app.get('/api/cursos', async (req, res) => {
+    const [rows] = await db.execute('SELECT * FROM cursos ORDER BY nombre');
+    res.json(rows);
 });
 
-// 3. Obtener todos los cursos 
-app.get('/cursos', (req, res) => {
-    db.query('SELECT * FROM cursos', (err, results) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(results);
-    });
+app.get('/api/catedraticos', async (req, res) => {
+    const [rows] = await db.execute('SELECT * FROM catedraticos ORDER BY nombre');
+    res.json(rows);
 });
 
-const PORT = 3000;
+app.get('/api/publicaciones', async (req, res) => {
+    try {
+        const [rows] = await db.execute(`
+            SELECT p.*, u.nombres, u.apellidos, u.registro
+            FROM publicaciones p
+            JOIN usuarios u ON p.usuario_id = u.id
+            ORDER BY p.creado_en DESC
+        `);
+        res.json(rows);
+    } catch (err) {
+        res.json([]); 
+    }
+});
+
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`✅ Servidor adaptado corriendo en http://localhost:${PORT}`);
 });
