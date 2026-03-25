@@ -83,7 +83,7 @@ INSERT INTO usuarios (registro, nombres, apellidos, correo, contrasena) VALUES
 
 -- Publicaciones 
 INSERT INTO publicaciones (usuario_id, tipo, referencia_id, mensaje) VALUES
-  (1, 'catedratico', 1, 'Todos los catedraticos dejan mucha tarea'),
+  (1, 'catedratico', 1, 'Todos los catedraticos dejan mucha tarea jaja'),
   (2, 'curso',       3, 'IPC1 esta muy dificil'),
   (3, 'catedratico', 2, 'La Ing deja mucha tarea');
 
