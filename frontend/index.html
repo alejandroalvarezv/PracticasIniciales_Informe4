@@ -311,11 +311,21 @@ function LoginForm({ onLogin, onSwitch }) {
 
   return (
     <div className="auth-card">
-      <div className="auth-logo"><div className="auth-logo-icon">S</div><h1>USAC</h1></div>
       {error && <div className="alert alert-error">{error}</div>}
-      <div className="field">
+      <div className="auth-logo">
+        <img 
+      src="logousac.png" 
+      alt="Logo USAC" 
+      style={{ width: '60px', height: 'auto', marginBottom: '10px' }} 
+    />
+    <h1>USAC</h1>
+  </div>
+
+  {error && <div className="alert alert-error">{error}</div>}
+  
+  <div className="field">
         <label>Carnet / Registro</label>
-        <input placeholder="202404224" onChange={e => setForm({...form, registro: e.target.value})} />
+        <input placeholder="Carnet" onChange={e => setForm({...form, registro: e.target.value})} />
       </div>
       <div className="field">
         <label>Contraseña</label>
@@ -364,7 +374,7 @@ function RegistroForm({ onSwitch }) {
 }
 
 // ═══════════════════════════════════════════════════════════
-//  FEED SCREEN (CON FILTROS INCLUIDOS)
+//  FEED SCREEN 
 // ═══════════════════════════════════════════════════════════
 function FeedScreen({ usuario, onLogout }) {
   const [publicaciones, setPublicaciones] = React.useState([]);
@@ -388,6 +398,11 @@ function FeedScreen({ usuario, onLogout }) {
       <nav>
         <div className="nav-logo">USAC<span style={{color:'var(--accent)'}}>.</span></div>
         <div style={{display:'flex', alignItems:'center', gap:15}}>
+          <img 
+      src="logousac.png" 
+      alt="Logo USAC" 
+      style={{ width: '35px', height: 'auto' }} 
+    />
           <button 
             className="btn btn-ghost" 
             style={{padding:'6px 12px', fontSize:12, borderColor: 'var(--accent2)'}}
@@ -422,21 +437,21 @@ function FeedScreen({ usuario, onLogout }) {
           onClick={() => setFiltro('todos')}
           style={{ padding: '8px 16px', fontSize: '11px', borderRadius: '20px' }}
         >
-          🌐 TODOS
+          TODOS
         </button>
         <button 
           className={`btn ${filtro === 'curso' ? 'btn-primary' : 'btn-ghost'}`}
           onClick={() => setFiltro('curso')}
           style={{ padding: '8px 16px', fontSize: '11px', borderRadius: '20px' }}
         >
-          📚 CURSOS
+          CURSOS
         </button>
         <button 
           className={`btn ${filtro === 'catedratico' ? 'btn-primary' : 'btn-ghost'}`}
           onClick={() => setFiltro('catedratico')}
           style={{ padding: '8px 16px', fontSize: '11px', borderRadius: '20px' }}
         >
-          👨‍🏫 CATEDRÁTICOS
+          CATEDRÁTICOS
         </button>
       </div>
 
@@ -602,7 +617,6 @@ function SearchUser({ onFound }) {
   );
 }
 
-//Perfil de usuario (modal para mostrar detalles del usuario, con opción de editar si es el propio perfil)
 function PerfilUsuario({ usuario, esPropio, onClose }) {
   const [form, setForm] = React.useState({
     nombres: usuario.nombres,
